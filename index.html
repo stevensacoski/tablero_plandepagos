@@ -129,6 +129,11 @@
   .kpi .pos{color:var(--verde)}
 
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  /* permitir que grids/cards se encojan por debajo de su contenido (evita desbordes en móvil) */
+  .grid2>*{min-width:0}
+  .card{min-width:0}
+  .bars,.bar,.bar .nm,.bar .track{min-width:0}
+  .tscroll{min-width:0;max-width:100%}
   .card{background:#fff;border:1px solid var(--linea);border-radius:var(--radio);padding:16px 17px;box-shadow:var(--sombra);margin-bottom:16px}
   .card h3{font-size:15px;margin-bottom:3px}
   .badge-fijo{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;
@@ -156,9 +161,17 @@
   .bar .nm{color:var(--gris);line-height:1.2;overflow-wrap:anywhere}
   .bar.sel .nm{color:var(--magenta);font-weight:700}
   .bar .track{background:var(--fondo);border-radius:5px;height:15px;overflow:hidden;border:1px solid var(--linea)}
-  .bar .fill{height:100%;border-radius:5px 0 0 5px;min-width:2px}
+  .bar .fill{display:block;height:100%;border-radius:5px 0 0 5px;min-width:2px}
+  .lolli-line{display:block}
   .bar .vv{color:var(--azul-osc);font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
   .empty{color:var(--gris-cl);font-size:12.5px;padding:8px 2px}
+  /* variantes */
+  .bar.v-share .track{background:var(--fondo)}
+  .bar .track.lolli{background:transparent;border:0;overflow:visible;position:relative;display:flex;align-items:center}
+  .bar .track.lolli::before{content:"";position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:2px;background:var(--linea);border-radius:2px}
+  .lolli-line{height:3px;border-radius:2px;position:relative;z-index:1}
+  .lolli-dot{position:absolute;top:50%;transform:translate(-50%,-50%);width:12px;height:12px;border-radius:50%;z-index:2;box-shadow:0 0 0 2px #fff}
+  .chart-nota{font-size:11px;color:var(--gris-cl);margin-top:9px;font-style:italic}
 
   /* tables */
   .tbl{width:100%;border-collapse:collapse;font-size:12.6px}
@@ -189,11 +202,12 @@
   .crono .stk{width:100%;max-width:24px;display:flex;flex-direction:column-reverse;border-radius:3px 3px 0 0;overflow:hidden}
   .crono .seg{width:100%}
   .crono .cx{color:var(--gris-cl);font-size:9px;margin-top:4px}
-  .crono.proj{height:215px;gap:3px;align-items:flex-end;padding-top:56px}
+  .crono.proj{height:180px;gap:3px;align-items:flex-end;padding-top:24px}
   .crono.proj .pbar{width:100%;background:linear-gradient(180deg,#5a93bf,var(--azul));border-radius:3px 3px 0 0;min-height:2px;position:relative}
   .crono.proj .pbar.hl{background:linear-gradient(180deg,#f06aa0,var(--magenta))}
-  .crono.proj .pv{position:absolute;bottom:calc(100% + 3px);left:50%;transform:translateX(-50%) rotate(180deg);
-    writing-mode:vertical-rl;font-size:9px;color:var(--gris);white-space:nowrap;font-weight:700;font-variant-numeric:tabular-nums}
+  .crono.proj .pv{position:absolute;bottom:calc(100% + 3px);left:50%;transform:translateX(-50%);
+    font-size:9.5px;color:var(--azul-osc);white-space:nowrap;font-weight:700;font-variant-numeric:tabular-nums;
+    background:rgba(255,255,255,.88);padding:0 2px;border-radius:3px}
   .proj-ax{display:flex;gap:3px;margin-top:6px}
   .proj-ax .px{flex:1;text-align:center;font-size:9.5px;color:var(--gris-cl);white-space:nowrap;overflow:hidden}
 
@@ -253,7 +267,7 @@ const LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAU8AAABgCAYAAACdQPCl
 /* usuarios del portal (editable; para producción se validan contra la hoja de usuarios) */
 const USUARIOS = [
   {id:'dir',  nombre:'Dirección Provincial', rol:'Dirección'},
-  {id:'coord',nombre:'Coordinación SAMO',    rol:'Coordinación'},
+  {id:'dirsamo',nombre:'Dirección SAMO',     rol:'Dirección'},
   {id:'admin',nombre:'Administración',        rol:'Administración'},
 ];
 
@@ -439,24 +453,28 @@ function viewApp(){
       <div id="paneMonit" hidden>
         <div class="grid2">
           <div class="card">
-            <h3 id="compTit">Composición del recupero mensual</h3>
+            <h3 id="compTit">Composición del recupero mensual <span class="badge-fijo">Estilo B</span></h3>
             <p class="hint" id="compHint">Aporte de cada financiador al recupero mensual del plan.</p>
             <div class="bars" id="barsComp"></div>
+            <p class="chart-nota">Estilo B: barras coloreadas por financiador, el largo representa la proporción del total mensual.</p>
           </div>
           <div class="card">
-            <h3>Distribución a hospitales</h3>
+            <h3>Distribución a hospitales <span class="badge-fijo">Estilo C</span></h3>
             <p class="hint">Recupero mensual por hospital de un financiador y su parametrización (top 15).</p>
             <div class="tools"><select id="selDistrib"></select></div>
             <div class="bars" id="barsDistrib"></div>
+            <p class="chart-nota">Estilo C: “lollipop” — línea fina con un punto; más liviano visualmente.</p>
           </div>
         </div>
         <div class="grid2">
-          <div class="card"><h3>Top 15 · recupero mensual recibido</h3>
+          <div class="card"><h3>Top 15 · recupero mensual recibido <span class="badge-fijo">Estilo A</span></h3>
             <p class="hint">Hospitales que más reciben por mes por el plan.</p>
-            <div class="bars" id="barsTopRec"></div></div>
-          <div class="card"><h3>Top 15 · mayor incremento del recupero</h3>
+            <div class="bars" id="barsTopRec"></div>
+            <p class="chart-nota">Estilo A: barras actuales (referencia).</p></div>
+          <div class="card"><h3>Top 15 · mayor incremento del recupero <span class="badge-fijo">Estilo D</span></h3>
             <p class="hint">Dónde el plan pesa más respecto del recupero histórico.</p>
-            <div class="bars" id="barsTopInc"></div></div>
+            <div class="bars" id="barsTopInc"></div>
+            <p class="chart-nota">Estilo D: la intensidad del verde crece con la magnitud del incremento.</p></div>
         </div>
         <div class="card">
           <h3>Detalle por hospital</h3>
@@ -596,13 +614,27 @@ function renderKpis(){
 /* ---------- barras genéricas ---------- */
 function barList(cont,rows,opt={}){
   cont.innerHTML=''; if(!rows.length){cont.innerHTML='<div class="empty">Sin datos para esta combinación de filtros.</div>';return;}
+  const variant=opt.variant||'bar';
   const max=Math.max(...rows.map(r=>r.v),1e-9);
+  const total=opt.total||rows.reduce((a,r)=>a+(r.v||0),0)||1;
+  const defColor='linear-gradient(90deg,#2f5f86,#417099)';
   rows.forEach(r=>{
     const sel=opt.selName&&r.name===opt.selName;
-    const row=el('div','bar'+(sel?' sel':''));
-    row.innerHTML=`<span class="nm" title="${esc(r.name)}">${esc(r.short||r.name)}</span>
-      <span class="track"><span class="fill" style="width:${Math.max(r.v/max*100,1.5)}%;background:${r.color||'linear-gradient(90deg,#2f5f86,#417099)'}"></span></span>
-      <span class="vv">${r.label}</span>`;
+    const row=el('div','bar'+(sel?' sel':'')+(variant!=='bar'?' v-'+variant:''));
+    if(variant==='lollipop'){
+      const w=Math.max(r.v/max*100,1), c=r.color||'var(--azul)';
+      row.innerHTML=`<span class="nm" title="${esc(r.name)}">${esc(r.short||r.name)}</span>
+        <span class="track lolli"><span class="lolli-line" style="width:${w}%;background:${c}"></span><span class="lolli-dot" style="left:${w}%;background:${c}"></span></span>
+        <span class="vv">${r.label}</span>`;
+    } else {
+      let w, fill;
+      if(variant==='share'){ w=Math.max(r.v/total*100,1.2); fill=r.color||'var(--azul)'; }
+      else if(variant==='heat'){ w=Math.max(r.v/max*100,2); fill=opt.heat? opt.heat(r.v/max):(r.color||defColor); }
+      else { w=Math.max(r.v/max*100,1.5); fill=r.color||defColor; }
+      row.innerHTML=`<span class="nm" title="${esc(r.name)}">${esc(r.short||r.name)}</span>
+        <span class="track"><span class="fill" style="width:${w}%;background:${fill}"></span></span>
+        <span class="vv">${r.label}</span>`;
+    }
     cont.appendChild(row);
   });
 }
@@ -647,32 +679,37 @@ function renderPlanes(){
 }
 
 function renderComp(){
-  const rows=mesPorOs().filter(r=>r.v>0).sort((a,b)=>b.v-a.v)
-    .map(r=>({name:r.os,v:r.v,label:moneyM(r.v),color:osColor[r.os]}));
-  const tot=rows.reduce((a,r)=>a+r.v,0);
+  // ESTILO B: barras coloreadas por financiador, largo = proporción del total mensual
+  const base=mesPorOs().filter(r=>r.v>0).sort((a,b)=>b.v-a.v);
+  const tot=base.reduce((a,r)=>a+r.v,0);
+  const rows=base.map(r=>({name:r.os,v:r.v,label:moneyM(r.v)+' · '+nf1.format(tot? r.v/tot*100:0)+'%',color:osColor[r.os]}));
   document.getElementById('compTit').textContent = state.F.hosp==='ALL'?'Composición del recupero mensual':'Recupero mensual · '+shortHosp(state.F.hosp);
-  document.getElementById('compHint').textContent = 'Recupero mensual en vista: '+full(tot)+'.';
-  barList(document.getElementById('barsComp'),rows,{selName:state.F.os});
+  document.getElementById('compHint').textContent = 'Recupero mensual en vista: '+full(tot)+'. El largo de cada barra es su proporción del total.';
+  barList(document.getElementById('barsComp'),rows,{selName:state.F.os,variant:'share',total:tot});
 }
 
 function renderDistrib(){
+  // ESTILO C: lollipop (línea fina + punto), coloreado por financiador
   const os= state.F.os!=='ALL'? state.F.os : state.distribOs;
   const sd=document.getElementById('selDistrib'); if(sd){sd.value=os; sd.disabled=(state.F.os!=='ALL');}
-  const cuotaOs=DATA.mmOsTransfer[os]||0; // = cuota mensual del plan de esa OS
+  const cuotaOs=DATA.mmOsTransfer[os]||0;
   const rows=DATA.hospitals.map(h=>({name:h.hospital,short:shortHosp(h.hospital),v:((DATA.mmHosp[h.hospital]||{}).brk||{})[os]||0}))
     .filter(r=>r.v>0).sort((a,b)=>b.v-a.v).slice(0,15)
     .map(r=>({...r,label:moneyM(r.v)+(cuotaOs?' · '+nf1.format(r.v/cuotaOs*100)+'%':''),color:osColor[os]}));
-  barList(document.getElementById('barsDistrib'),rows,{selName:state.F.hosp});
+  barList(document.getElementById('barsDistrib'),rows,{selName:state.F.hosp,variant:'lollipop'});
 }
 
 function renderRankings(){
   const H=DATA.hospitals;
+  // ESTILO A (referencia): barras actuales
   const r1=H.slice().sort((a,b)=>b.recuperoPlanMensual-a.recuperoPlanMensual).slice(0,15)
     .map(h=>({name:h.hospital,short:shortHosp(h.hospital),v:h.recuperoPlanMensual,label:moneyM(h.recuperoPlanMensual),color:'linear-gradient(90deg,#0c7d72,#00AEC3)'}));
   barList(document.getElementById('barsTopRec'),r1,{selName:state.F.hosp});
+  // ESTILO D: intensidad de color según la magnitud del incremento
+  const heatGreen=t=>`hsl(150,${Math.round(42+t*38)}%,${Math.round(62-t*26)}%)`;
   const r2=H.slice().filter(h=>h.incrementoRecupero!=null).sort((a,b)=>b.incrementoRecupero-a.incrementoRecupero).slice(0,15)
-    .map(h=>({name:h.hospital,short:shortHosp(h.hospital),v:h.incrementoRecupero,label:pct(h.incrementoRecupero),color:'linear-gradient(90deg,#0f5e30,#147A3D)'}));
-  barList(document.getElementById('barsTopInc'),r2,{selName:state.F.hosp});
+    .map(h=>({name:h.hospital,short:shortHosp(h.hospital),v:h.incrementoRecupero,label:pct(h.incrementoRecupero)}));
+  barList(document.getElementById('barsTopInc'),r2,{selName:state.F.hosp,variant:'heat',heat:heatGreen});
 }
 
 function renderTabla(){
@@ -722,11 +759,15 @@ function renderTimeline(){
   const max=Math.max(...all.map(i=>months[i]||0),1);
   const mLabel=idx=>{const d=new Date(Math.floor(idx/12),idx%12,1); return d.toLocaleDateString('es-AR',{month:'short'}).replace('.','')+' '+String(d.getFullYear()).slice(2);};
   const n=all.length, every = n<=14?1:(n<=28?2:3);
+  let prev=null;
   all.forEach((idx,i)=>{
     const v=months[idx]||0;
     const col=el('div','col'), bar=el('div','pbar'+(os!=='ALL'?' hl':''));
     bar.style.height=Math.max(v/max*140,2)+'px'; bar.title=mLabel(idx)+': '+moneyM(v);
-    bar.appendChild(el('span','pv',moneyM(v)));
+    // etiqueta de monto solo en los "escalones" (cuando cambia), para que se lea
+    const cambia = prev===null || Math.abs(v-prev) > max*0.02;
+    if(cambia) bar.appendChild(el('span','pv',moneyM(v)));
+    prev=v;
     col.appendChild(bar); cont.appendChild(col);
     ax.appendChild(el('div','px', i%every===0?mLabel(idx):''));
   });
