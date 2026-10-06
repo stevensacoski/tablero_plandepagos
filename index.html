@@ -199,8 +199,48 @@
 
   footer{margin-top:30px;color:var(--gris-cl);font-size:12px;text-align:center;border-top:1px solid var(--linea);padding-top:16px}
 
-  @media(max-width:860px){ .kpis{grid-template-columns:repeat(2,1fr)} .grid2{grid-template-columns:1fr} .bar{grid-template-columns:175px 1fr auto} }
-  @media(max-width:480px){ .kpis{grid-template-columns:1fr} .bar{grid-template-columns:130px 1fr auto} .gate-lista{grid-template-columns:1fr} }
+  .tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .proj-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+  @media(max-width:860px){ .kpis{grid-template-columns:repeat(2,1fr)} .grid2{grid-template-columns:1fr} .bar{grid-template-columns:170px 1fr auto} }
+
+  /* ---------- celular ---------- */
+  @media(max-width:640px){
+    body{font-size:13.5px}
+    .wrap{padding:16px 13px 56px}
+    /* topbar compacto */
+    .topbar{height:auto;min-height:52px;padding:8px 13px;gap:9px}
+    .topbar .logo{height:28px}
+    .topbar .marca{font-size:12.5px;line-height:1.15}
+    .topbar .marca small{display:none}
+    .marca-divisor{display:none}
+    .usuario-chip{padding:6px 10px;font-size:12px}
+    .usuario-chip .uname{display:none}
+    /* filtros: no sticky, apilados y a todo el ancho */
+    .filtros{position:static;padding:11px 13px;gap:10px}
+    .campo{min-width:0;flex:1 1 100%}
+    .campo.hosp,.campo.os{max-width:none;flex:1 1 100%}
+    .filtros .sep{display:none}
+    .btn-limpiar{flex:1 1 100%;padding:10px}
+    /* contenido */
+    .card{padding:13px 13px}
+    .kpi .val{font-size:21px}
+    h2.sec{margin:20px 0 11px}
+    .tabs{gap:7px;margin:16px 0 14px}
+    .tab{flex:1 1 auto;text-align:center;padding:10px 12px;font-size:12.5px}
+    /* tablas que no entran → scroll horizontal propio */
+    #tblPlanes{min-width:430px}
+    /* proyección: scroll horizontal con barras usables */
+    .proj-scroll .crono.proj, .proj-scroll .proj-ax{min-width:650px}
+    .crono.proj{padding-top:50px}
+    /* barras: nombre arriba de la barra para no comprimir */
+    .bar{grid-template-columns:1fr auto;grid-template-areas:"nm nm" "track vv";row-gap:3px;column-gap:8px;padding:7px 0;border-bottom:1px solid var(--fondo)}
+    .bar .nm{grid-area:nm;font-size:12.5px;color:var(--azul-osc)}
+    .bar .track{grid-area:track;height:14px}
+    .bar .vv{grid-area:vv}
+    .bar.sel{margin:0;padding:7px 6px}
+  }
+  @media(max-width:480px){ .kpis{grid-template-columns:1fr} .gate-lista{grid-template-columns:1fr} .gate-caja{padding:24px 20px} }
 </style>
 </head>
 <body>
@@ -337,7 +377,7 @@ function viewApp(){
       <div class="marca">Plan de Pagos · Recupero a Hospitales<small>Ministerio de Salud · Provincia de Buenos Aires — SAMO</small></div>
       <div class="sep"></div>
       <button class="usuario-chip" id="salir" title="Cambiar de usuario">
-        <span class="avatar">${esc(u.nombre[0])}</span>${esc(u.nombre)} · Salir</button>
+        <span class="avatar">${esc(u.nombre[0])}</span><span class="uname">${esc(u.nombre)} · </span>Salir</button>
     </div>
     <div class="filtros">
       <div class="campo hosp"><label>Hospital (ordenados por monto a recuperar)</label>
@@ -384,16 +424,15 @@ function viewApp(){
           <div class="card">
             <h3>Condiciones de cada plan <span class="badge-fijo">Fijo</span></h3>
             <p class="hint">Cuotas, interés, vencimiento y cuota mensual. <b>Información fija del plan: no cambia con los filtros.</b></p>
-            <table class="tbl" id="tblPlanes"><thead><tr>
+            <div class="tscroll"><table class="tbl" id="tblPlanes"><thead><tr>
               <th>Financiador</th><th>Cuotas</th><th>Tipo</th><th>Venc. 1ª</th><th>Deuda</th><th>Cuota/mes</th>
-            </tr></thead><tbody></tbody></table>
+            </tr></thead><tbody></tbody></table></div>
           </div>
         </div>
         <div class="card">
           <h3 id="projTit">Proyección del recupero mensual <span class="badge-fijo" id="projScope">todos</span></h3>
           <p class="hint" id="projHint">Cuánto ingresa por mes a medida que se pagan las cuotas; baja cuando cada plan termina. Se calcula con vencimientos, cantidad de cuotas e interés.</p>
-          <div class="crono proj" id="proj"></div>
-          <div class="proj-ax" id="projAx"></div>
+          <div class="proj-scroll"><div class="crono proj" id="proj"></div><div class="proj-ax" id="projAx"></div></div>
         </div>
       </div>
 
