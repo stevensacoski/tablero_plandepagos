@@ -254,7 +254,7 @@
     .bar .vv{grid-area:vv}
     .bar.sel{margin:0;padding:7px 6px}
   }
-  @media(max-width:480px){ .kpis{grid-template-columns:1fr} .gate-lista{grid-template-columns:1fr} .gate-caja{padding:24px 20px} }
+  @media(max-width:480px){ .gate-lista{grid-template-columns:1fr} .gate-caja{padding:24px 20px} .kpi .val{font-size:18px} .kpi{padding:12px 11px} }
 </style>
 </head>
 <body>
@@ -572,8 +572,7 @@ function renderKpis(){
        C('Incremento de bonificaciones',pct(t.incrementoBonif),'promedio → con plan','k-amar',1),
        C('Apoyo financiero (10%)',moneyM(t.apoyoFinanciero),'10% del recupero / mes','k-viol'),
        C('Hospitales alcanzados',nf0.format(DATA.hospitals.length),'reciben distribución'),
-       C('Recupero histórico prom.',moneyM(t.recuperoPromedio),'base mensual sin plan','k-turq'),
-       C('Agentes (promedio)',nf0.format(t.agentesProm),'base de cálculo bonif.')];
+       C('Recupero histórico prom.',moneyM(t.recuperoPromedio),'base mensual sin plan','k-turq')];
   } else if(hosp!=='ALL'&&os==='ALL'){
     const h=hospByName[hosp]||{}; const dm=DATA.deudaMatrix[hosp]||{};
     const deudaH=Object.values(dm).reduce((a,b)=>a+(b||0),0);
@@ -584,8 +583,7 @@ function renderKpis(){
        C('Incremento de bonificaciones',pct(h.incrementoBonif),'promedio → con plan','k-amar',1),
        C('Apoyo financiero (10%)',moneyM(h.apoyoFinanciero),'para el hospital / mes','k-viol'),
        C('Recupero histórico prom.',moneyM(h.recuperoPromedio),'base mensual sin plan','k-turq'),
-       C('Bonificaciones c/ plan',moneyM(h.bonifConPlan),'desde '+moneyM(h.bonifPromedio)+' prom.'),
-       C('Agentes (promedio)',nf0.format(h.agentesProm),'base de cálculo bonif.')];
+       C('Bonificaciones c/ plan',moneyM(h.bonifConPlan),'desde '+moneyM(h.bonifPromedio)+' prom.')];
   } else if(hosp==='ALL'&&os!=='ALL'){
     const p=planByOs[os]||{}; const con=/con/i.test(p.interes||'');
     const mesOs=DATA.mmOsTransfer[os]||0;
